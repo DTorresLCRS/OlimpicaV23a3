@@ -14,6 +14,9 @@
 
 %INCLUDE C:\APPL\APIVARI.J86
 
+! Indice del medio de pago cuyo tipo de verificación se ha modificado temporalmente
+Integer*2 EP.VERIF.TV.IDX%
+!
 !----------------------------------------------------------------------------------
 ! 2021-10-07 jsv
 ! Variables para despliegue de mensajes
@@ -156,6 +159,10 @@ END SUB
 !
 Sub printDebug(pMessage$) External
 End Sub
+!
+Function RESET14.isTef External
+	Integer*1 RESET14.isTef
+End Function
 !
 Sub printMessage(message$)
     String message$
@@ -1940,12 +1947,28 @@ SUB CAL.TAX.BASE(TAX.BASE%) PUBLIC
   NEXT IFOR%
 END SUB
 !
+Sub saveVerifType(pIdx%)
+	Integer*2 pIdx%
+	!
+	EP.VERIF.TV.SAV% = TO.TENDOPTS(pIdx%, 7)
+	EP.VERIF.TV.IDX% = pIdx%
+	TO.TENDOPTS(pIdx%, 7) = 2
+End Sub
+!
+Sub restoreVerifType
+	If EP.VERIF.TV.IDX% > -1 Then Begin
+		TO.TENDOPTS(EP.VERIF.TV.IDX%, 7) = EP.VERIF.TV.SAV%
+		EP.VERIF.TV.IDX% = -1
+	Endif
+End Sub
 !
 SUB EP.BUSCA.LIMITE.TV(UE.TIPO.VAR$) PUBLIC
   INTEGER*2 UE.I%
   INTEGER*1 UE.FOUND%
   STRING UE.TIPO.VAR$
 
+  Call restoreVerifType
+  !
   UE.I% = 1
   UE.FOUND% = 0 
   WHILE UE.I% <= TO.NUMTNDR AND NOT UE.FOUND%
@@ -1959,8 +1982,7 @@ SUB EP.BUSCA.LIMITE.TV(UE.TIPO.VAR$) PUBLIC
         EP.CHG.TV% = TO.TENDLIMITS(UE.I%,1) 
       IF TO.TENDOPTS(UE.I%,7) <> 2 THEN \
       BEGIN 
-        EP.VERIF.TV.SAV% = TO.TENDOPTS(UE.I%,7)
-        TO.TENDOPTS(UE.I%,7) = 1
+        Call saveVerifType( UE.I% )
       ENDIF \
       ELSE  \
       BEGIN
@@ -4454,6 +4476,8 @@ SUB UEAPPL02 PUBLIC
   EP.TRIES.COUNT% = 0
   Call printFranqRes
   EP.EFT.TRX% = 0
+  !
+  Call restoreVerifType
 END SUB
 !
 !
@@ -4518,6 +4542,7 @@ SUB UEAPPL05 PUBLIC
   EP.TRIES.COUNT% = 0
   Call printFranqRes
   EP.EFT.TRX% = 0
+  Call restoreVerifType
 END SUB
 !
 !
@@ -5022,6 +5047,7 @@ End Sub
 !*********************************************************************
 !
 SUB UEAPPL07 PUBLIC
+  EP.VERIF.TV.IDX% = -1
   EP.IOPARM%  = 95           !! session number for parameters
   EP.ERRNCODE% = 0
   EP.XCHGLIM% = TO.XCHGLIM
@@ -5034,6 +5060,19 @@ SUB UEAPPL07 PUBLIC
   Call appl.disableMessageDisplay
 END SUB
 !
+Sub UEAPPL14 Public
+	If 														\
+			TS.IO.MOTORKEY >= 91 And 	\ ! Secuencia de medio de pago
+			TS.IO.MOTORKEY <= 96 			\
+	Then Begin
+		! Si no es un medio de pago TEF, invoca rutina 
+		! para restaurar la opción de verificación de medio de pago
+		! que previamente ha sido modificada
+		If Not RESET14.isTef Then Begin
+			Call restoreVerifType
+		Endif
+	Endif
+End Sub
 !
 !*********************************************************************
 !                         (UEAPPL20.TPV)

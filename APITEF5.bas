@@ -3138,5 +3138,19 @@ Sub APITEF5.executePayment(pPaymentData$, pAccount$, pCustomer$) Public
 	TS.IO.KEYS(7) = 179
 End Sub
 !
+Function RESET14.isCOMPENSAR Public
+	Integer*1 RESET14.isCOMPENSAR
+	!
+	If EP.EFT.CMP.OK% Then Begin
+		RESET14.isCOMPENSAR = -1
+	Endif Else Begin
+		RESET14.isCOMPENSAR = 0
+	Endif
+End Function
+!
+Sub RESET14.COMPENSAR Public
+	EP.EFT.CMP.OK% = 0
+End Sub
+!
 END
 
