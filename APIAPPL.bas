@@ -40,7 +40,7 @@ Integer*1 EP.DYKEY.ACT%
 Integer*1 EP.DYKEY.PRC%
 String EP.DYKEY.KEY$, EP.DYKEY.MSG1$, EP.DYKEY.MSG2$
                                           
-  string global               \
+  string global              \
     gv.tarjetaCliente$       ,\
     gv.tipoVarTarjPriv$      ,\
     gv.idComercio$           ,\

@@ -56,7 +56,7 @@ Integer*2 tefApplCount%, tefVoucherCount%, tefVoucherSize%, tefIdTypeLen%
   STRING                    \
     EP.VOUCHER.TEF$(1)    
     
-  STRING  GLOBAL            \
+  STRING  GLOBAL           \
      EP.TV.COMPENSAR$      ,\ 
      EP.CLF.PREF.PPAL$     ,\
      EP.CLF.PREF.ALT$      ,\
@@ -67,7 +67,7 @@ Integer*2 tefApplCount%, tefVoucherCount%, tefVoucherSize%, tefIdTypeLen%
      TP.PREF.CUPON.TEXTO$  ,\
      TP.PREF.BONO.PREMIO$
      
-  STRING                    \
+  STRING                   \
      EP.TEF.CEDULA$        ,\ 
      EP.TEF.BOLSILLO$      ,\
      EP.TEF.PRODUCTO$      ,\
