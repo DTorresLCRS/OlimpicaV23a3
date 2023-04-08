@@ -1,0 +1,234 @@
+\/* TIME STAMP BLOCK **********************************************
+\** END OF TIME STAMP BLOCK **************************************/
+ 
+FUNCTION TSUPEC14 PUBLIC
+! TSUPEC14 - AFTER IOPROC READ
+
+%INCLUDE UET14PC1.V86                 !
+%INCLUDE UET14PSE.V86                 !
+%INCLUDE UET14VEN.V86                 !
+%INCLUDE DBUG1023.R86                 ! Debug
+%INCLUDE PKIO1011.R86                 ! Debug
+
+CALL VTASNOPR.14		      ! Ingreso de Numero de Pedido en Ventas No Presenciales
+
+CALL VOIDINGS.14.0		      ! Modulo Control de Devoluciones	
+
+CALL PRDOMICL.14		      ! Modulo Precios Domicilios
+
+CALL APITESOR.14		      ! Rutinas Tesoreria Automatica
+
+CALL TRXPED.14                        ! Mobile checkout
+
+CALL EP.DYKEY.CHECK                   ! Solicitud dinamica de llave
+
+Call CB.14.0                            ! Corresponsales bancarios LCRS
+
+! No permite suspension si hay medios de pago o descuentos
+if (ts.io.keys(6) = 81   and     \ ! tecla total
+    ts.io.keys(1) = 82 ) then    \ ! supendido 
+begin
+  if ts.tendered(0) <> 0 then    \ ! ingreso un medio de pago
+  begin
+    call ep.display.an.error("debe anular pagos   <$" + str$(ts.tendered(0)) + ">")
+    dim ts.io.data$(10)              ! borra secuencia de teclado
+    dim ts.io.keys(10)
+    ts.io.motorkey = 0
+  endif
+!  else if ts.disc.save(0,0) <> 0 then \ ! otorgo un dcto
+!  begin
+!    call ep.display.an.error("debe anular dctos   <$" + str$(ts.disc.save(0,0)) + ">")
+!    dim ts.io.data$(10)              ! borra secuencia de teclado
+!    dim ts.io.keys(10)
+!    ts.io.motorkey = 0
+!  endif \
+!  else if getTotalDescuentos <> 0 then \ ! no se puede suspender trx con dctos de articulo
+!  begin
+!    call ep.display.an.error("no puede suspender  trx con descuentos")
+!    dim ts.io.data$(10)              ! borra secuencia de teclado
+!    dim ts.io.keys(10)
+!    ts.io.motorkey = 0  
+!  endif
+endif
+
+If GR.INVE.TRX% = -1 THEN BEGIN       ! MODULO INVENTARIO FISICO
+   Call INVTSU14.011
+   EXIT FUNCTION
+EndIf 
+
+CALL pluControl.14                    ! Control de consulta de plus
+
+Call TCOSEQ.14                       ! Secuencia simplificada Bonos Olimpica
+
+! En caso de anulación de un producto, el cual se lee con escáner, se modifica
+! el TS.IO.DEVICE para evitar conflictos de lectura
+If \
+		(TS.IO.KEYS(2) = 80 And \
+		TS.IO.DATA$(2) <> "" And \
+		TS.IO.KEYS(1) = 70 And \
+		(Left$(TS.IO.DATA$(2), 2) <> "20" Or Len(TS.IO.DATA$(2)) < 12)) And \
+		TS.IO.DEVICE = 3 Then Begin
+	TS.IO.DEVICE = 1
+	!TS.IO.DATA$(2) = Left$(TS.IO.DATA$(2), Len(TS.IO.DATA$(2)) - 1)
+Endif
+
+CALL UE.TEND.14A                      ! CTROL AVANCES Y MEDIOS DE PAGO
+
+!%INCLUDE UET14DEV.011                 ! Devoluci•n
+
+! Este llamado se pasa para antes del control de anulaciones de productos con el fin 
+! de capturar el real TS.IO.DEVICE antes de que se altere
+!CALL pluControl.14                    ! Control de consulta de plus
+
+CALL UESCAP14
+
+%INCLUDE UET14MPG.013                 ! Cuota y Vr Cliente CRO *NUEVA*  *
+
+CALL UEANC14                         ! Anchetas
+
+CALL UETCRO14                        ! Serfinansa Fase-1
+
+CALL PAYLESS.14
+
+CALL UETEF14                         ! TARJ COMPENSAR
+
+Call UE.TEF.14                       ! Tef multiredes
+
+
+! call cisa.imprimir("sali 14 proc="+str$(ts.procedure),1)
+
+! CALL DSCPAG14A                       ! Descuentos por medio de pago
+
+%INCLUDE UEPAG014.011	              ! Control registro medios de pago
+
+ CALL UEPROMO14                       ! bonos retail
+%INCLUDE USR1401.011                  ! Asigna CANTIDAD = 1 Default IVA
+%INCLUDE USR1402.011                  ! Asigna (-) Reintegros Peso/FRUVER 
+%INCLUDE UET14STA.011                 ! Simulaci•n Secuencia Stand Alone
+%INCLUDE UET14CRM.011                 ! Cambia Red Multicolor a Efectivo
+%INCLUDE UET14VEN.011                 ! Vendedores
+%INCLUDE UET14DEP.011                 ! Departamentos Indirectos      
+
+!    %INCLUDE UET14REB.011                 ! Rebajas y Descuentos
+
+%INCLUDE UET14REB.j5a                 ! Rebajas y Descuentos j5a
+
+%INCLUDE UET14DEV.011                 ! Devoluci•n
+
+%INCLUDE UET14OCD.011                 ! Apertura Caj•n
+%INCLUDE UET14PSE.013                 ! Pago Cajas de Serfinansa
+%INCLUDE UET14PC1.012                 ! Pago de CrŠdito (Documentada)
+! %INCLUDE UET14PCR.011                ! Pago de CrŠdito
+
+CALL GLOBTS14.011
+!------------------------------------------------------------------------------
+CALL NFFTSU14.011                     ! Numeraci¢n Fiscal
+CALL RTITSU14.011                     ! IVA a declarar por Terminal (Tarj D/CR)
+
+!CALL RRDTSU14.011		      ! RRD
+!------------------------------------------------------------------------------
+
+Call SFA.14.0                         ! Cta ahorros Serfinansa
+
+CALL MENPAG14                         ! Tender Institutions
+
+CALL TCOSEQ.14A			      ! Asignacion de la entidad para secuencia simplificada
+
+!CALL DSCPAG14B                        ! Descuentos por medio de pago
+CALL QXL.TSUPEC14		      ! EJ
+CALL RECATS14.011                     ! RECARGA EN LINEA
+
+!CALL MENPAG14                         ! Tender Institutions
+
+CALL UERECT14                         ! Recaudo Terceros
+
+!CALL TPONLINE.14		      ! TP ONLINE
+
+CALL PROMO.BONO.14
+
+Call CB.14.1                          ! Corresponsales bancarios LCRS
+
+Call SFG.14							  ! Giros Serfinansa
+
+Call SFA.14                           ! Cta ahorros Serfinansa
+
+CALL TPONLINE.14		      ! TP ONLINE
+
+CALL RPRTOLI.14                       ! Modulo de Duplicado Tirilla
+
+CALL UESCAP.validateTV(14)
+
+!  if ts.io.motorkey = 94 then \
+!  begin 
+
+!  call cisa.imprimir("0k="+str$(ts.io.keys(0)),1)
+!  call cisa.imprimir("0d="+ts.io.data$(0),1)
+
+!  call cisa.imprimir("1k="+str$(ts.io.keys(1)),1)
+!  call cisa.imprimir("1d="+ts.io.data$(1),1)
+
+!  call cisa.imprimir("2k="+str$(ts.io.keys(2)),1)
+!  call cisa.imprimir("2d="+ts.io.data$(2),1)
+
+!  call cisa.imprimir("3k="+str$(ts.io.keys(3)),1)
+!  call cisa.imprimir("3d="+ts.io.data$(3),1)
+
+!  call cisa.imprimir("4k="+str$(ts.io.keys(4)),1)
+!  call cisa.imprimir("4d="+ts.io.data$(4),1)
+
+!  call cisa.imprimir("5k="+str$(ts.io.keys(5)),1)
+!  call cisa.imprimir("5d="+ts.io.data$(5),1)
+
+!  call cisa.imprimir("6k="+str$(ts.io.keys(6)),1)
+!  call cisa.imprimir("6d="+ts.io.data$(6),1)
+
+!  call cisa.imprimir("7k="+str$(ts.io.keys(7)),1)
+!  call cisa.imprimir("7d="+ts.io.data$(7),1)
+
+!  call cisa.imprimir("8k="+str$(ts.io.keys(8)),1)
+!  call cisa.imprimir("8d="+ts.io.data$(8),1)
+
+!  call cisa.imprimir("9k="+str$(ts.io.keys(9)),1)
+!  call cisa.imprimir("9d="+ts.io.data$(9),1)
+
+!  call cisa.imprimir("10d="+str$(ts.io.keys(10)),1)
+!  call cisa.imprimir("10k="+ts.io.data$(10),1)
+
+!  endif
+!  call cisa.imprimir("final 14 key="+str$(ts.io.motorkey),1)
+
+!  %INCLUDE UESSO114.U86              ! Tejido Humano - Sello Social
+
+CALL UE.TEND.14B                      ! CTROL AVANCES Y MEDIOS DE PAGO
+
+CALL TPRED.14                         ! Modulo de redencion de puntos
+
+Call REVERSE.14                       ! Modulo de reversos tcro y compensar
+
+CALL SFG.asignarEntidad		      ! Giros Serfinansa (asignarEntidad)
+
+Call SFA.asignarEntidad               ! Cta ahorros Serfinansa
+
+! Este llamado se debe subir para el proceso de automatización de secuencias
+! de corresponsalía bancaria 
+!Call CB.14.1                          ! Corresponsales bancarios LCRS
+
+Call VTDOMICL.14                      ! Modulo Venta Domicilios
+
+CALL VOIDINGS.14		      ! Modulo Control de Devoluciones	
+
+CALL UETEF14.1                        ! Asignacion opcional de entidad
+
+CALL MENPAG14.1			      ! Correcci•n Bug Corresponsal Bancario Bancol
+
+CALL CTRINV.14		              ! Control para Ventas con Inventario
+
+CALL VTASNOPR.14.1		      ! Ingreso de No. de Pedido en Ventas No presenciales
+
+CALL PAYLESS.14.1		      ! Modulo Ventas Domicilio Payless
+
+Call autoPrChg.verifyRequest          ! Cambio automatico de precio
+
+Call UEAPPL14                         ! Rutina para restaurar opciones de medio de pago si es necesario
+
+END FUNCTION
