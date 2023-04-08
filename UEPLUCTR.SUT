@@ -1,0 +1,26 @@
+Sub pluControl.02 External
+End Sub
+!
+Sub pluControl.05 External
+End Sub
+!
+Sub pluControl.07 External
+End Sub
+!
+Sub pluControl.08 External
+End Sub
+!
+Sub pluControl.14 External
+End Sub
+!
+Sub pluControl.53 External
+End Sub
+!
+Sub pluControl.67 External
+End Sub
+!
+Function isPluToVoidFrank(plu$) External
+	Integer*1 isPluToVoidFrank
+	String plu$
+End Function
+!
