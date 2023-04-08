@@ -1,0 +1,69 @@
+!*********************************************************************
+!                         (UEAPPLSU.TPV)
+!                           (Ver 1.00)
+!
+! This routine performs the following
+! - Defines external routines for CRO and ALP payment user exits
+!*********************************************************************
+!
+SUB UEAPPL01 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL02 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL04 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL05 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL06 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL06A EXTERNAL
+END SUB
+!
+SUB UEAPPL07 EXTERNAL
+!
+END SUB
+!
+Sub UEAPPL14 External
+End Sub
+!
+SUB UEAPPL20 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL33 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL53 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL57 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL60 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL37 EXTERNAL
+!
+END SUB
+!
+SUB UEAPPL23 EXTERNAL
+!
+END SUB
+!
+Sub EP.DYKEY.CHECK External
+End Sub
+!
