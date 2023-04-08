@@ -1,0 +1,36 @@
+\/* TIME STAMP BLOCK **********************************************
+\** END OF TIME STAMP BLOCK **************************************/
+ 
+FUNCTION TSUPEC05 PUBLIC
+! TSUPEC05 - AFTER NS
+
+CALL QXL.TSUPEC05                 ! EJ
+
+CALL UETEF05                      ! TARJETA COMPENSAR
+
+CALL UEAPPL05                     ! TCRO en linea
+
+CALL TPONLINE.05                  ! TPONLINE LCRS
+
+Call SFG.05						  ! Giros Serfinansa
+
+CALL UE.TEND.05                   ! CTROL AVANCES Y MEDIOS DE PAGO
+
+CALL MENPAG05                     ! Entidades por medio de pago
+
+CALL TPRED.05                     ! Modulo de redencion de puntos
+
+Call CB.05                        ! Corresponsales bancarios LCRS
+
+Call SFA.05                       ! Cta ahorros Serfinansa
+
+CALL PAYLESS.05			  ! Modulo Ventas Domicilio Payless
+
+Call pluControl.05    ! Modulo PLUCTR
+
+TO.HEADERLINE1$ = headerOriginal$
+
+Call UESCAP05
+
+END FUNCTION
+ 

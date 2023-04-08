@@ -1,0 +1,111 @@
+\/* TIME STAMP BLOCK **********************************************
+\** END OF TIME STAMP BLOCK **************************************/
+ 
+FUNCTION TSUPEC08 PUBLIC
+! TSUPEC08- AFTER IR READ
+INTEGER*1 TSUPEC08                        ! define variable !IR89474
+
+If GR.INVE.TRX% = -1 THEN BEGIN           ! MODULO INVENTARIO FISICO
+   Call INVTSU08.011
+   EXIT FUNCTION
+EndIf 
+
+CALL VOIDINGS.08			  ! Modulo Control de Devoluciones
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+Call FCOMMON.08
+
+CALL APITESOR.08			  ! Rutinas Tesoreria Automatica
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+Call TRXPED.08                            ! Mobile Checkout
+
+CALL PROMO.BONO.08
+
+! 2023-04-02 jsv
+! La invocación a corresponsalía bancaria se pasa para antes de la invocación a 
+! recaudo terceros con el fin de inhibir la intervención de estos recaudos si es 
+! necesario
+USR.exitFunction% = 0
+Call CB.08                                ! Corresponsales bancarios LCRS
+If Not USR.exitFunction% Then Begin
+	CALL UERECT08                             ! Recaudo Terceros
+Endif
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+Call TPRED.08                             ! Modulo de redencion de puntos
+
+
+CALL UESCAP08
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+! CALL INVTSU08.011                         ! INVENTARIOS FISICOS
+
+CALL UEANC08                              ! Anchetas
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+%INCLUDE USR0801.011                      ! Grabar siempre PLU en Tlog
+!------------------------------------------------------------------------------
+CALL NFFTSU08.011                         ! Numeraci¢n Fiscal
+
+!CALL RRDTSU08.011			  ! RRD
+
+!------------------------------------------------------------------------------
+CALL GLOBTS08.011                         ! Proyecto Global Data Tel
+
+!  %INCLUDE UESSO108.U86		  ! Tejido Humano - Sello Social
+
+  IF VAL(UNPACK$(IR.SALEQUAN$)) > 1 THEN \
+    IR.INDICAT0 = IR.INDICAT0 OR 20H 
+
+CALL pluControl.08                        ! Control de consulta de plus
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+CALL RECATS08.011                         ! RECARGA EN LINEA
+
+Call SFG.08								  ! Giros Serfinansa
+
+CALL RECMISC.08                           ! Asigna plu recaudo cro
+
+CALL PRDOMICL.08			  ! Modulo Precios Domicilios
+
+Call VTDOMICL.08        ! Modulo Venta Domicilios
+
+! 2023-04-02 jsv
+! La invocación a corresponsalía bancaria se pasa para antes de la invocación a 
+! recaudo terceros con el fin de inhibir la intervención de estos recaudos si es 
+! necesario
+!Call CB.08                                ! Corresponsales bancarios LCRS
+
+Call SFA.08                               ! Cta ahorros Serfinansa
+
+CALL BENEFMED.08                          ! Modulo Beneficios Medicamentos
+
+CALL VTASNOPR.08	! Ingreso de Numero de Pedido en Ventas No Presenciales
+
+If FAST.EXIT Then Begin
+	Exit Function
+Endif
+
+Call autoPrChg.read                       ! Cambio automatico de precio
+
+END FUNCTION
+ 

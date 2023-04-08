@@ -1,0 +1,38 @@
+\/* TIME STAMP BLOCK **********************************************
+\** END OF TIME STAMP BLOCK **************************************/
+\/****************************************************************/
+\/*                                                              */
+\/* IR39146  Add user exit after price computation is complete.  */
+\/*          RSH MGVA 12Nov98                                    */
+\/*                                                              */
+\/****************************************************************/
+
+FUNCTION TSUPEC67 PUBLIC
+
+! Insert User Exit Code here
+!  %INCLUDE UESSO167.U86	! Tejido Humano - Sello Social
+
+Call SFG.67			! Giros Serfinansa
+
+Call SFA.67                     ! Cta ahorros Serfinansa
+
+CALL UEANC67                    ! Anchetas	
+
+CALL PRDOMICL.67		! Modulo Precios Domicilios
+
+Call VTDOMICL.67      		! Modulo Venta Domicilios
+
+Call CB.67
+
+CALL VOIDINGS.67		! Modulo Control de Devoluciones	
+
+Call VTASNOPR.67                ! Ventas no presenciales
+
+Call UESCAP67
+
+CALL CTRINV.67                  ! Control para Ventas con Inventario
+
+Call pluControl.67
+
+END FUNCTION
+

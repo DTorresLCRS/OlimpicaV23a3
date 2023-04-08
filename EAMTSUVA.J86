@@ -1,0 +1,50 @@
+\/* TIME STAMP BLOCK **********************************************
+\** END OF TIME STAMP BLOCK **************************************/
+!
+!THIS INCLUDE FILE PROVIDES A PLACE FOR THE USER TO DEFINE VARIABLES
+!WHICH ARE COMMON TO SEVERAL OF HIS USER EXIT FUNCTIONS IN EAMTSUPC.
+INTEGER*4 GLOBAL U.SSO.INPROGRESS
+integer*1 global yyy%, GR.INVE.TRX%
+%INCLUDE UET14AUT.G86           !       
+%INCLUDE UET13PCR.G86           ! Credito
+%INCLUDE UET20PCR.G86           ! Credito
+%INCLUDE UETUVREB.G86           ! Rebajas y Descuentos
+%INCLUDE UETUVOCD.G86           ! Apertura del Caj•n
+%INCLUDE DBUG1013.G86           ! Debug
+%INCLUDE TLOGPRTS.G86           ! Debug 
+%INCLUDE SAVRESTR.V86           ! Debug
+%INCLUDE DBUG1033.V86           ! Debug
+%INCLUDE PKIO2011.V86           ! Debug
+INTEGER*1 BK.LINETYPE
+%INCLUDE USR02UV.011            ! Variables Calculo de IVA
+!------------------------------------------------------------------------------
+%INCLUDE NFFTSUVA.011           ! Numeraci¢n Fiscal
+%INCLUDE RTITSUVA.011           ! IVA a Declarar por terminal (Tarjeta D/CR)
+!------------------------------------------------------------------------------
+%INCLUDE OLIMTSVA.011		! Proyectos de Ol¡mpica
+%INCLUDE JOURTSVA.011		! Variables Electronic Journal
+%INCLUDE EAMP4VAJ.J86 		! 4610 Printer
+%INCLUDE EAMP4VGJ.J86		! Variables rutinas 4610
+%INCLUDE RRDTSUVA.V03		! RRD
+%INCLUDE C:\APPL\DSCPAGVA.TPV    ! Descuentos por medio de pago
+%Include c:\appl\fcommon.vat    ! Variables Globales Comunes
+
+%INCLUDE c:\scappos\basic\src\UESCAPVA.TPV
+
+%INCLUDE C:\APPL\UERCROVA.TPV   ! Recaudo tcro en linea
+
+%Include UETVAVEN.V86           ! Variables globales vendedores
+
+!   %INCLUDE UESSO1VA.U86	! Tejido Humano
+! %INCLUDE C:\APPL\UEAPPLVA.TPV   ! TCRO en linea
+!------------------------------------------------------------------------------
+String    Global headerOriginal$
+
+String    Global TCOSEQ.account$, TCOSEQ.expireDate$
+
+String    Global UE.lastline.20$	! Definicion para Debug trans. sin No. de Docto. Equival.
+
+Integer   Global FAST.EXIT
+
+Integer*1 Global USR.exitFunction%
+
