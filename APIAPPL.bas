@@ -2,7 +2,7 @@
 !                         (APIAPPL.BAS)
 !                           (Ver 2.00)
 !
-%ENVIRON T
+%ENVIRON T 
 !
 ! Supermarket application global data
 !
