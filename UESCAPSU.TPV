@@ -1,0 +1,100 @@
+SUB UESCAP01 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP02 EXTERNAL
+!
+END SUB
+!
+Sub UESCAP05 External
+End Sub
+!
+SUB UESCAP07 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP08 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP10 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP14 EXTERNAL
+!
+END SUB
+!
+!SUB UESCAP14A EXTERNAL
+!!
+!END SUB
+!
+SUB UESCAP20 EXTERNAL
+!
+END SUB
+!
+Sub UESCAP30 External
+End Sub
+!
+Sub UESCAP.DMP External
+End Sub
+!
+FUNCTION EP.IS.ITEM.LINE.20 EXTERNAL
+	Integer*1 EP.IS.ITEM.LINE.20
+!
+END FUNCTION
+!
+SUB EP.imprimirDatosClienteScap EXTERNAL
+!
+END SUB
+!
+SUB UESCAP33 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP44 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP53 EXTERNAL
+!
+END SUB
+!
+SUB UESCAP60 EXTERNAL
+!
+END SUB
+!
+Sub UESCAP63 External
+End Sub
+!
+SUB UESCAP67 EXTERNAL
+!
+END SUB
+!
+Sub UESCAP.validateTV(pUE%) External
+	Integer*1 pUE%
+End Sub
+!
+Sub printDebugGeneral(pMsg$) External
+	String pMsg$
+End Sub
+!
+Function DISC.getConfirmDiscAmount External
+	Integer*4 DISC.getConfirmDiscAmount
+End Function
+!
+Function CONTING.isActive External
+	Integer*1 CONTING.isActive
+End Function
+!
+Sub DISC.FNFF.NUM External
+End Sub
+!
+Function FE.isActive External
+	Integer*1 FE.isActive
+End Function
+!
+Function FE.isSkipEquivDoc External
+	Integer*1 FE.isSkipEquivDoc
+End Function
+!
