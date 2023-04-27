@@ -56,7 +56,7 @@ Integer*2 tefApplCount%, tefVoucherCount%, tefVoucherSize%, tefIdTypeLen%
   STRING                    \
     EP.VOUCHER.TEF$(1)    
     
-  STRING  GLOBAL           \
+  STRING  GLOBAL            \
      EP.TV.COMPENSAR$      ,\ 
      EP.CLF.PREF.PPAL$     ,\
      EP.CLF.PREF.ALT$      ,\
@@ -67,7 +67,7 @@ Integer*2 tefApplCount%, tefVoucherCount%, tefVoucherSize%, tefIdTypeLen%
      TP.PREF.CUPON.TEXTO$  ,\
      TP.PREF.BONO.PREMIO$
      
-  STRING                   \
+  STRING                    \
      EP.TEF.CEDULA$        ,\ 
      EP.TEF.BOLSILLO$      ,\
      EP.TEF.PRODUCTO$      ,\
@@ -437,22 +437,44 @@ Sub initGenericTefParam(pParamData$)
 	Endif
 End Sub
 
+Function getJData(pParam$, pClassName$, pMethod$)
+	String getJData, pParam$, pClassName$, pMethod$
+	String tmpRequest$, tmpReturn$, tmpException$
+	!
+	tmpRequest$ = "getJData"
+	tmpException$ = ""
+	!
+	Call Javacall.Initialize.Request(pClassName$, pMethod$, tmpRequest$)
+	Call JavaCall.AddParameter.String(tmpRequest$, pParam$)
+	Call JavaCall.InvokeMethod.ReturnString(tmpRequest$, tmpReturn$, tmpException$)
+	!
+	getJData = tmpReturn$
+End Function
+
+Function getJInputAccountDescriptor(pAppl$)
+	String getJInputAccountDescriptor, pAppl$
+	!
+	getJInputAccountDescriptor = getJData(pAppl$, "com.lacadena.pos.tef.TefParametersProvider", "getAccountDescriptor")
+End Function
+
 Function getInputAccountDescriptor(pAppl$)
 	String getInputAccountDescriptor, pAppl$, tmpAnswer$
 	Integer*2 tmpCounter%
 	Integer*1 tmpFound%
 	!
-	tmpFound% = 0
-	tmpCounter% = 1
-	tmpAnswer$ = ""
-	While tmpFound% = 0 And tmpCounter% <= tefApplCount%
-		If tefAppl$(tmpCounter%, 0) = pAppl$ Then Begin
-			tmpFound% = -1
-			tmpAnswer$ = tefAppl$(tmpCounter%, 1)
-		Endif Else Begin
-			tmpCounter% = tmpCounter% + 1
-		Endif
-	Wend
+	!tmpFound% = 0
+	!tmpCounter% = 1
+	!tmpAnswer$ = ""
+	!While tmpFound% = 0 And tmpCounter% <= tefApplCount%
+	!	If tefAppl$(tmpCounter%, 0) = pAppl$ Then Begin
+	!		tmpFound% = -1
+	!		tmpAnswer$ = tefAppl$(tmpCounter%, 1)
+	!	Endif Else Begin
+	!		tmpCounter% = tmpCounter% + 1
+	!	Endif
+	!Wend
+	!
+	tmpAnswer$ = getJInputAccountDescriptor( pAppl$ )
 	!
 	If tmpAnswer$ = "" Then Begin
 		tmpAnswer$ = "ENTRE NRO. CUENTA"
@@ -612,6 +634,7 @@ Function selectTefAppl
 		tmpAnswer$ = APITEF5.externalTefData$
 		APITEF5.externalTefData$ = ""
 	Endif Else Begin
+		Call EP.DISPLAY.A.MESSAGE("Consultando opciones de pago en linea")
 		tmpAnswer$ = EP.invocarApplManager1("09", "00", "", 0, -1, 1)
 	Endif
 	!
@@ -1010,6 +1033,13 @@ Sub changeTV(pNewTV$)
 	TS.TDR.INDEX = EP.TV.POS%
 End Sub
 !
+Function getJConvenioTender(pAppl$, pFunction$, pConvenio$, pBolsillo$)
+	String getJConvenioTender, pAppl$, pFunction$, pConvenio$, pBolsillo$, tmpParam$
+	!
+	tmpParam$ = pAppl$ + "," + pFunction$ + "," + pConvenio$ + "," + pBolsillo$
+	getJConvenioTender = getJData(tmpParam$, "com.lacadena.pos.tef.TefParametersProvider", "getConvenioTender")
+End Function
+!
 Sub getConvenioTender(pTV$, pEntity%)
 	String pTV$, tmpKey$, tmpValue$
 	Integer*2 pEntity%
@@ -1018,36 +1048,40 @@ Sub getConvenioTender(pTV$, pEntity%)
 	!
 	pTV$ = ""
 	pEntity% = 0
-	tmpKey$ = \
-			"TENDER_DEF_" + EP.APPL$ + "_" + \
-			EP.ECR.FUNCTION$ + "_" + \
-			EP.OPT.CONVENIO$ + "_" + EP.OPT.BOLSILLO$
-	tmpValue$ = getProperty(tmpKey$, tefParamData$)
-	Call printDebug("key="+tmpKey$)
-	If Len(tmpValue$) = 0 Then Begin
-		tmpKey$ = \
-				"TENDER_DEF_" + EP.APPL$ + "_" + \
-				"XX" + "_" + \
-				EP.OPT.CONVENIO$ + "_" + EP.OPT.BOLSILLO$
-		tmpValue$ = getProperty(tmpKey$, tefParamData$)
-		Call printDebug("key="+tmpKey$)
-	Endif
-	If Len(tmpValue$) = 0 Then Begin
-		tmpKey$ = \
-				"TENDER_DEF_" + EP.APPL$ + "_" + \
-				EP.ECR.FUNCTION$ + "_" + \
-				EP.OPT.CONVENIO$ + "_" + "XX"
-		tmpValue$ = getProperty(tmpKey$, tefParamData$)
-		Call printDebug("key="+tmpKey$)
-	Endif
-	If Len(tmpValue$) = 0 Then Begin
-		tmpKey$ = \
-				"TENDER_DEF_" + EP.APPL$ + "_" + \
-				"XX" + "_" + \
-				EP.OPT.CONVENIO$ + "_" + "XX"
-		tmpValue$ = getProperty(tmpKey$, tefParamData$)
-		Call printDebug("key="+tmpKey$)
-	Endif
+	!
+	!tmpKey$ = \
+	!		"TENDER_DEF_" + EP.APPL$ + "_" + \
+	!		EP.ECR.FUNCTION$ + "_" + \
+	!		EP.OPT.CONVENIO$ + "_" + EP.OPT.BOLSILLO$
+	!tmpValue$ = getProperty(tmpKey$, tefParamData$)
+	!Call printDebug("key="+tmpKey$)
+	!If Len(tmpValue$) = 0 Then Begin
+	!	tmpKey$ = \
+	!			"TENDER_DEF_" + EP.APPL$ + "_" + \
+	!			"XX" + "_" + \
+	!			EP.OPT.CONVENIO$ + "_" + EP.OPT.BOLSILLO$
+	!	tmpValue$ = getProperty(tmpKey$, tefParamData$)
+	!	Call printDebug("key="+tmpKey$)
+	!Endif
+	!If Len(tmpValue$) = 0 Then Begin
+	!	tmpKey$ = \
+	!			"TENDER_DEF_" + EP.APPL$ + "_" + \
+	!			EP.ECR.FUNCTION$ + "_" + \
+	!			EP.OPT.CONVENIO$ + "_" + "XX"
+	!	tmpValue$ = getProperty(tmpKey$, tefParamData$)
+	!	Call printDebug("key="+tmpKey$)
+	!Endif
+	!If Len(tmpValue$) = 0 Then Begin
+	!	tmpKey$ = \
+	!			"TENDER_DEF_" + EP.APPL$ + "_" + \
+	!			"XX" + "_" + \
+	!			EP.OPT.CONVENIO$ + "_" + "XX"
+	!	tmpValue$ = getProperty(tmpKey$, tefParamData$)
+	!	Call printDebug("key="+tmpKey$)
+	!Endif
+	!
+	tmpValue$ = getJConvenioTender(EP.APPL$, EP.ECR.FUNCTION$, EP.OPT.CONVENIO$, EP.OPT.BOLSILLO$)
+	!
 	Call printDebug("value="+tmpValue$)
 	If Len(tmpValue$) > 1 Then Begin
 		pTV$ = Left$(tmpValue$, 2)
